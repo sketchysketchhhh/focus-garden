@@ -26,6 +26,28 @@ npm run build      # outputs to dist/
 ```
 Upload `dist/` to Netlify, Vercel, Cloudflare Pages or GitHub Pages. The site needs HTTPS for the install option to appear.
 
+## Android APK
+Every push to `main` builds an Android app on GitHub Actions (`.github/workflows/android.yml`) and attaches
+**FocusGarden.apk** to a new GitHub Release. Open the latest release on your phone, download the APK and install it
+(allow "Install unknown apps" for your browser when asked).
+
+The Android project is in `android/` (made with [Capacitor](https://capacitorjs.com)). The app runs from files inside
+the APK, so it works offline. After changing the web code locally, run `npm run build && npx cap sync android`.
+
+**Signing.** Without secrets, builds are signed with the shared test key `android/app/ci-debug.keystore`. That is fine
+for installing on your own phone, but not for the Play Store. To sign with your release key, add these repository secrets
+(Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | your `.keystore` file, base64-encoded (`base64 -w0 focus-garden-release.keystore`) |
+| `ANDROID_KEYSTORE_PASSWORD` | keystore password |
+| `ANDROID_KEY_PASSWORD` | key password (same as the keystore password) |
+| `ANDROID_KEY_ALIAS` | `focusgarden` |
+
+With those set, each build also produces **FocusGarden.aab** for uploading to Google Play.
+Switching keys means uninstalling the test-signed app once before installing the release-signed one.
+
 ## Install as an app
 - **Android (Chrome):** menu ⋮ → *Install app*
 - **iPhone (Safari):** Share → *Add to Home Screen*
